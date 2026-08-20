@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs"; // ioredis needs a real TCP socket, not Edge
 
 const KEY = "attendance-ledger:data";
 
 function hasRedis() {
-  return Boolean(
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-  );
+  return Boolean(process.env.REDIS_URL);
 }
 
-function client() {
-  return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL!,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-  });
+let client: Redis | null = null;
+function getClient() {
+  if (!client) {
+    client = new Redis(process.env.REDIS_URL!);
+  }
+  return client;
 }
 
 export async function GET() {
@@ -23,8 +23,11 @@ export async function GET() {
     return NextResponse.json({ configured: false, data: null });
   }
   try {
-    const data = await client().get(KEY);
-    return NextResponse.json({ configured: true, data: data ?? null });
+    const raw = await getClient().get(KEY);
+    return NextResponse.json({
+      configured: true,
+      data: raw ? JSON.parse(raw) : null,
+    });
   } catch (e) {
     console.error("Redis read failed", e);
     return NextResponse.json({ configured: false, data: null });
@@ -40,7 +43,7 @@ export async function POST(req: NextRequest) {
   }
   try {
     const body = await req.json();
-    await client().set(KEY, body);
+    await getClient().set(KEY, JSON.stringify(body));
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("Redis write failed", e);
