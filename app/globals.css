@@ -1,0 +1,76 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: #e9e4d6;
+  color: #1f2a3c;
+}
+
+body {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 35px,
+    rgba(31, 42, 60, 0.08) 36px
+  );
+  background-attachment: local;
+}
+
+.margin-rule {
+  position: relative;
+}
+.margin-rule::before {
+  content: "";
+  position: absolute;
+  left: 40px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(166, 54, 44, 0.35);
+}
+@media (min-width: 640px) {
+  .margin-rule::before {
+    left: 64px;
+  }
+}
+
+/* Prevent iOS Safari from auto-zooming into text/number inputs
+   (it does this whenever a focused input's font-size is under 16px). */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* Comfortable thumb-sized tap targets on touch devices */
+button {
+  min-height: 40px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  padding-bottom: env(safe-area-inset-bottom);
+  overflow-x: hidden;
+}
+
+/* stamp toggle */
+.stamp {
+  transform: rotate(-3deg);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stamp:hover {
+  transform: rotate(-1deg) scale(1.03);
+}
+.stamp:active {
+  transform: rotate(1deg) scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp {
+    transition: none;
+  }
+}
